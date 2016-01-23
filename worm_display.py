@@ -22,8 +22,8 @@ class WormDisplay(QtWidgets.QWidget):
         #
         # Now set everything in motion...
         #
-        self.set_timer()
-        self.update()
+        #self.set_timer()
+        #self.update()
 
     def new_game(self, h=20, w=20, cW=0, hW=0, wW=4):
         self.worldWidth = h
@@ -34,6 +34,8 @@ class WormDisplay(QtWidgets.QWidget):
         self.wildWorms = wW
         randomParts = Random_Worm_Parts()
         self.pixmap = randomParts.background()
+        self.rectangle = 0 #arbitrary initial value to check changes against
+
         for x in range(0,self.computerControlledWorms):
             name = randomParts.dancer()
             location = next(self.world.random_location())
@@ -55,7 +57,7 @@ class WormDisplay(QtWidgets.QWidget):
         self.turns = 0
         self.set_timer()
         self.update()
-        
+
     def set_timer(self):
         maximumSlowDownForMultipleWorms = 6
         if len(self.world.worms) < maximumSlowDownForMultipleWorms:
@@ -121,16 +123,30 @@ class WormDisplay(QtWidgets.QWidget):
         painter = QtGui.QPainter(self)
         rectangle = self.contentsRect()
         #
+        # Redraw everything if the screen size changes (or on first run)
+        #
+        if rectangle != self.rectangle:
+            self.background = self.pixmap.copy()
+            backgroundPainter = QtGui.QPainter(self.background)
+            self.draw_locations_hexes(backgroundPainter)
+            self.draw_all_segments(backgroundPainter)
+        #
+        # Add the next to last (penultimate) segment to the background
+        #
+        backgroundPainter = QtGui.QPainter(self.background)
+        self.draw_penultimate_segment(backgroundPainter)
+        #
         # Set Background
         #
-        painter.drawPixmap(rectangle, self.pixmap, rectangle)
+        painter.drawPixmap(rectangle, self.background, rectangle)
         #
         # Draw the rest
         #
-        self.draw_locations_hexes(painter)
-        self.draw_segments(painter)
-        self.draw_last_segment(painter)
+        #self.draw_locations_hexes(painter)
+        #self.draw_segments(painter)
+        self.draw_ultimate_segment(painter)
         self.draw_heads(painter)
+        self.rectangle = rectangle
 
     def draw_heads(self, painter):
         """Draw a little head on each worm."""
@@ -148,7 +164,7 @@ class WormDisplay(QtWidgets.QWidget):
                     painter.drawEllipse(center,radius,radius)
             
 
-    def draw_last_segment(self, painter):
+    def draw_ultimate_segment(self, painter):
         """Draw the newest segment of each worm in a different color."""
         numberOfWorms = len(self.world.worms)
         latestSegments = self.world.segments[-numberOfWorms:]
@@ -172,36 +188,35 @@ class WormDisplay(QtWidgets.QWidget):
             else:
                 pass
             
-    def draw_locations_hexes(self, painter):
-        """Draw the hexogonal locations for the worms."""
-        color = QtGui.QColor(0xFFFFFF)
-        color.setAlpha(16)
-        width = 1
-        pen = QtGui.QPen(color, width)
-        painter.setPen(pen)
-        
-        for row in self.world.locations:
-            for location in row:
-                xStartWorld = location.x
-                yStartWorld = location.y
-                for neighbor in location.neighbors:
-                    xEndWorld = neighbor.x
-                    yEndWorld = neighbor.y
-                    if (abs(xStartWorld - xEndWorld) <= 2) and (abs(yStartWorld - yEndWorld) <= 2):
-                        x1, y1 = self.world_location_to_screen_coord(xStartWorld, yStartWorld)
-                        x2, y2 = self.world_location_to_screen_coord(xEndWorld, yEndWorld)
-                        painter.drawLine(x1,y1,x2,y2)
-                    else:
-                        pass
+    def draw_penultimate_segment(self, painter):
+        """Draw the newest segment of each worm in a different color."""
+        numberOfWorms = len(self.world.worms)
+        latestSegments = self.world.segments[-numberOfWorms:]
+        for segment in latestSegments:
+            #
+            # I can't draw across the screen correctly yet, so this is the
+            # temporary fix to just not draw the literal edge case.
+            #
+            if (abs(segment.xStart - segment.xEnd) <= 2) and (abs(segment.yStart - segment.yEnd) <= 2):
+                x1, y1 = self.world_location_to_screen_coord(segment.xStart, segment.yStart)
+                x2, y2 = self.world_location_to_screen_coord(segment.xEnd, segment.yEnd)
+                color = QtGui.QColor(segment.color)
+                for width,alpha in [(11,4),(9,8),(7,16),(5,32),(3,64),(1,255)]:
+                    color.setAlpha(alpha)
+                    pen = QtGui.QPen(color, width)
+                    painter.setPen(pen)
+                    painter.drawLine(x1,y1,x2,y2)
+            else:
+                pass
 
-    def draw_segments(self, painter):
+    def draw_all_segments(self, painter):
         """Draw the paths taken by the worms so far."""
         allWorms = self.world.worms + self.world.deadWorms
         for worm in allWorms:
             if worm.is_alive():
                 color = QtGui.QColor(worm.color)
             else:
-                color = QtGui.QColor(worm.color).darker(150)            
+                color = QtGui.QColor(worm.color).darker(150)
             for segment in worm.segments:
                 #
                 # I can't draw across the screen correctly yet, so this is the
@@ -236,12 +251,39 @@ class WormDisplay(QtWidgets.QWidget):
                     painter.drawLine(x1,y1,x2,y2)
             else:
                 pass
-    
+
+    def draw_locations_hexes(self, painter):
+        """Draw the hexogonal locations for the worms."""
+        color = QtGui.QColor(0xFFFFFF)
+        color.setAlpha(16)
+        width = 1
+        pen = QtGui.QPen(color, width)
+        painter.setPen(pen)
+
+        for row in self.world.locations:
+            for location in row:
+                xStartWorld = location.x
+                yStartWorld = location.y
+                for neighbor in location.neighbors:
+                    xEndWorld = neighbor.x
+                    yEndWorld = neighbor.y
+                    #
+                    # Don't draw hexes across outer boarders, because I'm not doing that yet.
+                    #
+                    if (abs(xStartWorld - xEndWorld) <= 2) and (abs(yStartWorld - yEndWorld) <= 2):
+                        x1, y1 = self.world_location_to_screen_coord(xStartWorld, yStartWorld)
+                        x2, y2 = self.world_location_to_screen_coord(xEndWorld, yEndWorld)
+                        painter.drawLine(x1,y1,x2,y2)
+                    else:
+                        pass
+
     def world_location_to_screen_coord(self,xWorld,yWorld):
         """Given a world x,y return the screen x,y values."""
         rectangle = self.contentsRect()
         xResolution = rectangle.right()
         yResolution = rectangle.bottom()
+#        xResolution = 750
+#        yResolution = 885
         xStep = xResolution // self.world.width
         yStep = yResolution // self.world.height
         #

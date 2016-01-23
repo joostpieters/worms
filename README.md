@@ -31,27 +31,26 @@ Requires:
  [ ] Scale scores based on world size (and number of worms?)
  [x] Saving worms once you've trained them
  [ ] Keep track of triangles forms for highlights at end
- [ ] Kepp track of triangles formed for highlighting at end.
  [x] Loading saved worms
  [X] More than one worm
  [X] Computer controlled worm (chooses random legal move)
- [ ] Smarter computer controlled worms
+ [ ] Smarter computer controlled worms (loading trained worms)
  [x] Play against someone
  [X] different colors for different worms
  [ ] Animation while keeping score
  [ ] Select new direction rule with mouse
  [x] Start a new game
- [ ] Set the number of worms
+ [x] Set the number of worms
  [ ] Pick the color of a worm
  [x] Better set of computer worm colors
  [x] Move all graphics and sounds out of data structure file
  [ ] Program actually quits correctly.
  [x] Change starting speed
- [x] Make neighbors x,y data instead of refernces to other locations
+ [x] Make neighbors x,y data instead of references to other locations
  [ ] Rules that look at the color of paths instead of just paths
  [ ] Rules that look further out on the board
- [ ] Fix bug that causes errors when Height and Width are not equal
- [ ] Dialog box for new game
+ [x] Fix bug that causes errors when Height and Width are not equal
+ [x] Dialog box for new game
  [x] Better random names, colors & sound (could still be cleaned up)
  [x] Random background for new games
  [ ] Change to Ben Chaffin's notation.
