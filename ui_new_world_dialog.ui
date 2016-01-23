@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NewWorldDialog</class>
+ <widget class="QDialog" name="NewWorldDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>409</width>
+    <height>261</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>385</width>
+     <height>231</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="WorldPop">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>World Population</string>
+        </property>
+        <widget class="QSpinBox" name="human">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>20</y>
+           <width>42</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>1</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="computer">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>60</y>
+           <width>42</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>3</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="heightLabel_3">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>20</y>
+           <width>91</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Human Controlled</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="widthLabel_3">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>60</y>
+           <width>101</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Computer Controlled</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="widthLabel_4">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>100</y>
+           <width>91</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Wild (no rules)</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="wild">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>100</y>
+           <width>42</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+        <zorder>human</zorder>
+        <zorder>computer</zorder>
+        <zorder>heightLabel_3</zorder>
+        <zorder>widthLabel_3</zorder>
+        <zorder>widthLabel_4</zorder>
+        <zorder>wild</zorder>
+        <zorder>worldSize</zorder>
+        <zorder>worldSize</zorder>
+        <zorder>worldSize</zorder>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="worldSize">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>186</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>World Size</string>
+        </property>
+        <widget class="QSpinBox" name="height">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>20</y>
+           <width>42</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="minimum">
+          <number>5</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>5</number>
+         </property>
+         <property name="value">
+          <number>30</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="width">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>60</y>
+           <width>42</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="minimum">
+          <number>5</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>5</number>
+         </property>
+         <property name="value">
+          <number>30</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="heightLabel">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>20</y>
+           <width>47</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Height</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="widthLabel">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>60</y>
+           <width>47</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Width</string>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QDialogButtonBox" name="buttonBox">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="standardButtons">
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>NewWorldDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>233</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>NewWorldDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>200</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>233</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
