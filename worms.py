@@ -61,7 +61,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.display.show()
 
     def setup_window(self):
-        """Just putting a bunch of loosly related window setup stuff together here."""
+        """Just putting a bunch of loosely related window setup stuff together here."""
         # Starting size of window. I don't think this is required.
         xSize = 750
         ySize = 885
@@ -181,7 +181,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fileMenu.addAction(self.openAction)
         self.fileMenu.addAction(self.saveAction)
         self.fileMenu.addAction(self.saveAsAction)
-        self.fileMenu.addSeparator();
+        self.fileMenu.addSeparator()
         self.fileMenu.addAction(self.exitAction)
 
         self.menuBar().addSeparator()
