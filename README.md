@@ -4,7 +4,7 @@ Python update to the 1983 video game "Worms?"
 Requires:
  PyQt5
 
- To Do:
+ To Do: 
  [x] Create the data structure
  [x] Draw the board
  [x] Move the worm
