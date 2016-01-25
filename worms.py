@@ -6,6 +6,7 @@ from worm_display import WormDisplay
 
 from ui_new_world_dialog import Ui_Dialog as Ui_NewWorldDialog
 
+
 class NewWorldDialog(QtWidgets.QDialog, Ui_NewWorldDialog):
     def __init__(self):
         super(NewWorldDialog, self).__init__()
@@ -329,6 +330,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def mouseReleaseEvent(self, event):
         print("release")
+
+    def keyPressEvent(self, event):
+        print("key press")
+
+    def keyReleaseEvent(self, event):
+        print("key release")
 
 if __name__ == '__main__':
     #

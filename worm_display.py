@@ -1,5 +1,6 @@
 import sys, random
-from time import sleep
+from time import sleep, clock
+from copy import copy
 from PyQt5 import QtGui, QtCore, QtWidgets, QtMultimedia
 
 import worm_class
@@ -12,20 +13,18 @@ class WormDisplay(QtWidgets.QWidget):
         self.mainWindow = mainWindow
         self.timer = QtCore.QBasicTimer()
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-
-                
         #
         # This next section is specific to our worm application. 
         #
         self.timerBaseSpeed = 500
         self.new_game()
-        #
-        # Now set everything in motion...
-        #
-        #self.set_timer()
-        #self.update()
 
-    def new_game(self, h=20, w=20, cW=0, hW=0, wW=4):
+    def new_game(self, h=20, w=20, cW=4, hW=0, wW=0):
+        #
+        # Setting random seed just for testing.
+        #
+        random.seed(3)
+        self.time = clock()
         self.worldWidth = h
         self.worldHeight = w
         self.world = worm_class.World(self.worldWidth, self.worldHeight)
@@ -35,7 +34,14 @@ class WormDisplay(QtWidgets.QWidget):
         randomParts = Random_Worm_Parts()
         self.pixmap = randomParts.background()
         self.rectangle = 0 #arbitrary initial value to check changes against
-
+        #
+        # Add human worms (not yet implemented)
+        #
+        for x in range(0,self.humanControlledWorms):
+            pass
+        #
+        # Add computer worms
+        #
         for x in range(0,self.computerControlledWorms):
             name = randomParts.dancer()
             location = next(self.world.random_location())
@@ -45,6 +51,9 @@ class WormDisplay(QtWidgets.QWidget):
             sounds = randomParts.sounds()
             worm = worm_class.ComputerControlledWorm(name, location, direction, color, sounds)
             self.world.add_worm(worm)
+        #
+        # add wild worms
+        #
         for x in range(0,self.wildWorms):
             name = randomParts.dancer()
             location = next(self.world.random_location())
@@ -55,6 +64,8 @@ class WormDisplay(QtWidgets.QWidget):
             worm = worm_class.WildWorm(name, location, direction, color, sounds)
             self.world.add_worm(worm)
         self.turns = 0
+        self.waitingForHuman = False
+        self.waitingWorm = None
         self.set_timer()
         self.update()
 
@@ -72,6 +83,40 @@ class WormDisplay(QtWidgets.QWidget):
         self.timerBaseSpeed = speed
         self.set_timer()
 
+    def run_game(self):
+        """Run the world for a certain number of turns."""
+        wormsToRun = [worm for worm in self.world.worms if worm.turnCompleted == False]
+        for worm in wormsToRun:
+            if worm.is_alive():
+                if worm.type() == 'human' and not worm.has_rule():
+                    self.get_move_rule(worm)
+                    self.waitingForHuman = True
+                    self.waitingWorm = worm
+                    break
+                    print('human')
+                segment = worm.move()
+                self.world.segments.append(segment)
+            else:
+                self.world.deadWorms.append(worm)
+                self.world.worms.remove(worm)
+            worm.turnCompleted = True
+
+    def run_game2(self):
+        #
+        # THIS ONE WORKS RIGHT!!
+        #
+        for worm in self.world.worms:
+            if worm.turnCompleted == False:
+                if worm.is_alive():
+                    segment = worm.move()
+                    self.world.segments.append(segment)
+                else:
+                    self.world.deadWorms.append(worm)
+                    self.world.worms.remove(worm)
+                worm.turnCompleted = True
+
+
+
     def timerEvent(self, event):
         """Each time our timer goes off, this event is called."""
         #
@@ -82,14 +127,24 @@ class WormDisplay(QtWidgets.QWidget):
             # If there are living worms, move them. Otherwise we're all done.
             #
             if len(self.world.worms) > 0:
-                self.turns += 1
-                self.world.run(1)
+                wormsToRun = [worm for worm in self.world.worms if worm.turnCompleted == False]
+                #
+                # This should always be zero, but it is 1 when a worm dies and that throws
+                #  "things" off. Figure out what that thing is.
+                #
+                print(len(wormsToRun))
+                if len(wormsToRun) == 0:
+                    for worm in self.world.worms:
+                        worm.turnCompleted = False
+                    self.turns += 1
+                    self.set_timer()
+                    #self.show_stats()
+                self.run_game2()
                 self.update()
                 self.play_sounds()
-                self.set_timer()
-                self.show_stats()
             else:
                 self.timer.stop()
+                print(clock()-self.time)
         #
         # If it wasn't called for our timer, maybe the main windows
         # called it, so we will pass it on up the chain.
@@ -119,7 +174,7 @@ class WormDisplay(QtWidgets.QWidget):
         return QtCore.QSize(400, 200)
         
     def paintEvent(self, event):
-        """By magic, this even occationally gets called. Maybe on self.update()?"""
+        """By magic, this event occasionally gets called. Maybe on self.update()?"""
         painter = QtGui.QPainter(self)
         rectangle = self.contentsRect()
         #
@@ -140,10 +195,8 @@ class WormDisplay(QtWidgets.QWidget):
         #
         painter.drawPixmap(rectangle, self.background, rectangle)
         #
-        # Draw the rest
+        # Draw the last (ultimate) segment and the head.
         #
-        #self.draw_locations_hexes(painter)
-        #self.draw_segments(painter)
         self.draw_ultimate_segment(painter)
         self.draw_heads(painter)
         self.rectangle = rectangle
@@ -225,7 +278,7 @@ class WormDisplay(QtWidgets.QWidget):
                 if (abs(segment.xStart - segment.xEnd) <= 2) and (abs(segment.yStart - segment.yEnd) <= 2):
                     x1, y1 = self.world_location_to_screen_coord(segment.xStart, segment.yStart)
                     x2, y2 = self.world_location_to_screen_coord(segment.xEnd, segment.yEnd)
-                    for width,alpha in [(11,4),(9,8),(7,16),(5,32),(3,64),(1,255)]:
+                    for width, alpha in [(11,4),(9,8),(7,16),(5,32),(3,64),(1,255)]:
                         color.setAlpha(alpha)
                         pen = QtGui.QPen(color, width)
                         painter.setPen(pen)

@@ -19,17 +19,6 @@ class World():
     def add_worm(self,worm):
         self.worms.append(worm)
 
-    def run(self,turns=1):
-        """Run the world for a certain number of turns."""
-        for turn in range(0,turns):
-            for worm in self.worms:
-                if worm.is_alive():
-                    segment = worm.move()
-                    self.segments.append(segment)
-                else:
-                    self.deadWorms.append(worm)
-                    self.worms.remove(worm)
-
     def test(self):
         computerWorms = 3
         humanWorms = 1
@@ -205,6 +194,8 @@ class Worm():
         self.rules = {}
         self.segments = []
         self.sounds = sounds
+        self.waitingForInstructions = False
+        self.turnCompleted = False
         #
         # Scoring variables
         #
@@ -388,15 +379,19 @@ class Worm():
 class HumanControlledWorm(Worm):
 
     def choose_turn(self):
-        """Display the legal moves and get a move from the user."""
-        legalString = self.legal_moves_string()
-        legalList = self.legal_moves_list()
-        print(legalString)
-        prompt = "Which turn would you like ***"+self.name+"*** to make? "
-        turn = -1
-        while turn not in legalList:
-            turn = int(get_integer(prompt))
-        return turn
+        self.waitingForInstructions = True
+        # """Display the legal moves and get a move from the user."""
+        # legalString = self.legal_moves_string()
+        # legalList = self.legal_moves_list()
+        # print(legalString)
+        # prompt = "Which turn would you like ***"+self.name+"*** to make? "
+        # turn = -1
+        # while turn not in legalList:
+        #     turn = int(get_integer(prompt))
+        # return turn
+
+    def type(self):
+        return 'human'
 
 class ComputerControlledWorm(Worm):
     
@@ -405,7 +400,10 @@ class ComputerControlledWorm(Worm):
         legalList = self.legal_moves_list()
         turn = choice(legalList)
         return turn
-        
+
+    def type(self):
+        return 'computer'
+
 class WildWorm(Worm):
 
     def has_rule(self):
@@ -419,6 +417,9 @@ class WildWorm(Worm):
 
     def percent_programmed(self):
         return 0
+
+    def type(self):
+        return 'wild'
         
 class Segment():
 
