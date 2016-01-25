@@ -233,6 +233,17 @@ class Worm():
         self.color = savedWorm.color
         self.sounds = savedWorm.sounds
         self.rules = savedWorm.rules
+        self.location = location
+        self.direction = randint(0,6)
+        self.segments = []
+        self.waitingForInstructions = False
+        self.turnCompleted = False
+        #
+        # Scoring variables
+        #
+        self.segmentCount = 0
+        self.triangleCount = 0
+        self.asteriskCount = 0
 
     def score(self):
         return self.segmentCount + (3 * self.triangleCount) + (6 * self.asteriskCount)

@@ -60,9 +60,9 @@ Requires:
  
  [x] Saving worms once you've trained them
  
- [ ] Keep track of triangles forms for highlights at end
+ [ ] Keep track of triangles formed for highlights at end
  
- [x] Loading saved worms
+ [ ] Loading saved worms
  
  [X] More than one worm
  
