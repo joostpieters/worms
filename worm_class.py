@@ -379,16 +379,16 @@ class Worm():
 class HumanControlledWorm(Worm):
 
     def choose_turn(self):
+        """Display the legal moves and get a move from the user."""
         self.waitingForInstructions = True
-        # """Display the legal moves and get a move from the user."""
-        # legalString = self.legal_moves_string()
-        # legalList = self.legal_moves_list()
-        # print(legalString)
-        # prompt = "Which turn would you like ***"+self.name+"*** to make? "
-        # turn = -1
-        # while turn not in legalList:
-        #     turn = int(get_integer(prompt))
-        # return turn
+        legalString = self.legal_moves_string()
+        legalList = self.legal_moves_list()
+        print(legalString)
+        prompt = "Which turn would you like ***"+self.name+"*** to make? "
+        turn = -1
+        while turn not in legalList:
+            turn = int(get_integer(prompt))
+        return turn
 
     def type(self):
         return 'human'

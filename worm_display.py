@@ -38,7 +38,13 @@ class WormDisplay(QtWidgets.QWidget):
         # Add human worms (not yet implemented)
         #
         for x in range(0,self.humanControlledWorms):
-            pass
+            name = input('Enter a name for your worm: ')
+            location = next(self.world.random_location())
+            direction = random.randint(0,6)
+            color = randomParts.color()
+            sounds = randomParts.sounds()
+            worm = worm_class.HumanControlledWorm(name,location,direction,color,sounds)
+            self.world.add_worm(worm)
         #
         # Add computer worms
         #
@@ -150,7 +156,7 @@ class WormDisplay(QtWidgets.QWidget):
         # called it, so we will pass it on up the chain.
         #
         else:
-            super(Board, self).timerEvent(event)
+            super(WormDisplay, self).timerEvent(event)
 
     def show_stats(self):
         allWorms = self.world.worms + self.world.deadWorms
