@@ -136,7 +136,7 @@ class WormDisplay(QtWidgets.QWidget):
             #
             if len(self.world.worms) > 0:
                 if self.waitingForHuman:
-                    print('waiting for human')
+#                    print('waiting for human')
                     self.waitingBlinkOn = not self.waitingBlinkOn
                     self.update()
                 else:
@@ -204,7 +204,7 @@ class WormDisplay(QtWidgets.QWidget):
             self.draw_head(painter,worm)
             self.draw_ultimate_segment(painter, worm)
         if self.waitingForHuman:
-            print('painting waiting for human.')
+#            print('painting waiting for human.')
             #print(self.waitingWorm)
             #
             # Prefer to show next choice as straight, but if that is not legal then
@@ -240,7 +240,7 @@ class WormDisplay(QtWidgets.QWidget):
                         painter.drawLine(x1,y1,x2,y2)
 
         else:
-            print('painting not waiting for human')
+#            print('painting not waiting for human')
             #
             # Add the next to last (penultimate) segment to the background
             #
@@ -249,17 +249,31 @@ class WormDisplay(QtWidgets.QWidget):
             self.rectangle = rectangle
 
     def keyPressEvent(self, event):
+        print('keypress Enter')
         if event.key() in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Left, QtCore.Qt.Key_Up, QtCore.Qt.Key_Down]:
+            print('into if')
             if event.key() in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up]:
                 turnDirection = +1
             else:
                 turnDirection = -1
             self.waitingTurn = (self.waitingTurn + turnDirection) % 6
             if self.waitingTurn == 0:
-                if event.key() [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up]:
+                print('into waiting turn = 0 if')
+                if event.key() in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up]:
                     self.waitingTurn = 1
                 else:
                     self.waitingTurn = 5
+                print('waitingTurn = ',self.waitingTurn)
+            print('legal moves',self.waitingWorm.legal_moves_list())
+            print('direction',self.waitingTurn)
+            while self.waitingTurn not in self.waitingWorm.legal_moves_list():
+                self.waitingTurn = (self.waitingTurn + turnDirection) % 6
+                if self.waitingTurn == 0:
+                    if event.key() in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up]:
+                        self.waitingTurn = 1
+                    else:
+                        self.waitingTurn = 5
+                print('direction',self.waitingTurn)
         elif event.key() in [QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return, QtCore.Qt.Key_Space]:
             view = self.waitingWorm.look()
             self.waitingWorm.rules[view] = self.waitingTurn
