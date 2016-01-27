@@ -159,7 +159,21 @@ class Location():
         #
         self.passageways[worm.direction] = worm
 
-            
+    def leave_just_checking(self,direction):
+        """Return the new location, but don't close the path. used to
+        get the new location for when a human is just checking on the
+        possible next moves."""
+        passageway = (direction + 3) % 6
+        #
+        # Put a reference to the worm in the passage location instead
+        # of simply indicating it is blocked with a value so that we
+        # can make decisions about turns based who whether or not
+        # the worm sees its own tracks in a later version.
+        #
+        #self.passageways[passageway] = worm
+        newLocation = self.neighbors[passageway]
+        return newLocation
+
 class Worm():
     #                            1   2
     #                             \ /                                     

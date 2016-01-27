@@ -65,7 +65,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """Just putting a bunch of loosely related window setup stuff together here."""
         # Starting size of window. I don't think this is required.
         xSize = 750
-        ySize = 885
+        ySize = 870
         self.resize(xSize, ySize)
         # Starting coordinates of the window will be centered.
         screen = QtWidgets.QDesktopWidget().screenGeometry()

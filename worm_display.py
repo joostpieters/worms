@@ -19,10 +19,11 @@ class WormDisplay(QtWidgets.QWidget):
         self.timerBaseSpeed = 500
         self.new_game()
 
-    def new_game(self, h=20, w=20, cW=4, hW=0, wW=0):
+    def new_game(self, h=20, w=20, cW=3, hW=1, wW=0):
         #
         # Setting random seed just for testing.
         #
+        self.timer.stop()
         random.seed(3)
         self.time = clock()
         self.worldWidth = h
@@ -34,17 +35,6 @@ class WormDisplay(QtWidgets.QWidget):
         randomParts = Random_Worm_Parts()
         self.pixmap = randomParts.background()
         self.rectangle = 0 #arbitrary initial value to check changes against
-        #
-        # Add human worms (not yet implemented)
-        #
-        for x in range(0,self.humanControlledWorms):
-            name = input('Enter a name for your worm: ')
-            location = next(self.world.random_location())
-            direction = random.randint(0,6)
-            color = randomParts.color()
-            sounds = randomParts.sounds()
-            worm = worm_class.HumanControlledWorm(name,location,direction,color,sounds)
-            self.world.add_worm(worm)
         #
         # Add computer worms
         #
@@ -69,6 +59,28 @@ class WormDisplay(QtWidgets.QWidget):
             sounds = randomParts.sounds()
             worm = worm_class.WildWorm(name, location, direction, color, sounds)
             self.world.add_worm(worm)
+        #
+        # Add human worms
+        #
+        for x in range(0,self.humanControlledWorms):
+            label = 'Worm '+str(x+1)
+            textDialog = QtWidgets.QInputDialog()
+            textDialog.setModal(True)
+            text, ok = textDialog.getText(textDialog, label, "Enter your worm's name:")
+            if ok:
+                name = text
+            else:
+                name = 'Trent'
+            colorDialog = QtWidgets.QColorDialog()
+            colorDialog.setModal(True)
+            color = colorDialog.getColor()
+            if not color.isValid():
+                color = randomParts.color()
+            location = next(self.world.random_location())
+            direction = random.randint(0,6)
+            sounds = randomParts.sounds()
+            worm = worm_class.HumanControlledWorm(name,location,direction,color,sounds)
+            self.world.add_worm(worm)
         self.turns = 0
         self.waitingForHuman = False
         self.waitingWorm = None
@@ -90,37 +102,27 @@ class WormDisplay(QtWidgets.QWidget):
         self.set_timer()
 
     def run_game(self):
-        """Run the world for a certain number of turns."""
+        """Process one 'turn' where all worms that are able to move without
+           a user decision are moved. If you get to a human controlled worm
+           AND that worm needs a new rule, then break so the user input can be
+           processed."""
         wormsToRun = [worm for worm in self.world.worms if worm.turnCompleted == False]
         for worm in wormsToRun:
             if worm.is_alive():
                 if worm.type() == 'human' and not worm.has_rule():
-                    self.get_move_rule(worm)
+                    #self.get_human_move_rule(worm)
                     self.waitingForHuman = True
                     self.waitingWorm = worm
+                    self.waitingBlinkOn = True
+                    self.waitingTurn = None
+                    self.timer.start(500, self)
                     break
-                    print('human')
                 segment = worm.move()
                 self.world.segments.append(segment)
             else:
                 self.world.deadWorms.append(worm)
                 self.world.worms.remove(worm)
             worm.turnCompleted = True
-
-    def run_game2(self):
-        #
-        # THIS ONE WORKS RIGHT!!
-        #
-        for worm in self.world.worms:
-            if worm.turnCompleted == False:
-                if worm.is_alive():
-                    segment = worm.move()
-                    self.world.segments.append(segment)
-                else:
-                    self.world.deadWorms.append(worm)
-                    self.world.worms.remove(worm)
-                worm.turnCompleted = True
-
 
 
     def timerEvent(self, event):
@@ -133,21 +135,21 @@ class WormDisplay(QtWidgets.QWidget):
             # If there are living worms, move them. Otherwise we're all done.
             #
             if len(self.world.worms) > 0:
-                wormsToRun = [worm for worm in self.world.worms if worm.turnCompleted == False]
-                #
-                # This should always be zero, but it is 1 when a worm dies and that throws
-                #  "things" off. Figure out what that thing is.
-                #
-                print(len(wormsToRun))
-                if len(wormsToRun) == 0:
-                    for worm in self.world.worms:
-                        worm.turnCompleted = False
-                    self.turns += 1
-                    self.set_timer()
-                    #self.show_stats()
-                self.run_game2()
-                self.update()
-                self.play_sounds()
+                if self.waitingForHuman:
+                    print('waiting for human')
+                    self.waitingBlinkOn = not self.waitingBlinkOn
+                    self.update()
+                else:
+                    wormsToRun = [worm for worm in self.world.worms if worm.turnCompleted == False]
+                    if len(wormsToRun) == 0:
+                        for worm in self.world.worms:
+                            worm.turnCompleted = False
+                        self.turns += 1
+                        self.set_timer()
+                        self.show_stats()
+                    self.run_game()
+                    self.update()
+                    self.play_sounds()
             else:
                 self.timer.stop()
                 print(clock()-self.time)
@@ -170,7 +172,7 @@ class WormDisplay(QtWidgets.QWidget):
             
     def play_sounds(self):
         for worm in self.world.worms[:4]:
-            d = worm.direction
+            d = worm.direction-1
             worm.sounds[d].play()
 
     def minimumSizeHint(self):
@@ -192,42 +194,96 @@ class WormDisplay(QtWidgets.QWidget):
             self.draw_locations_hexes(backgroundPainter)
             self.draw_all_segments(backgroundPainter)
         #
-        # Add the next to last (penultimate) segment to the background
-        #
-        backgroundPainter = QtGui.QPainter(self.background)
-        self.draw_penultimate_segment(backgroundPainter)
-        #
         # Set Background
         #
         painter.drawPixmap(rectangle, self.background, rectangle)
         #
         # Draw the last (ultimate) segment and the head.
         #
-        self.draw_ultimate_segment(painter)
-        self.draw_heads(painter)
-        self.rectangle = rectangle
+        for worm in self.world.worms:
+            self.draw_head(painter,worm)
+            self.draw_ultimate_segment(painter, worm)
+        if self.waitingForHuman:
+            print('painting waiting for human.')
+            #print(self.waitingWorm)
+            #
+            # Prefer to show next choice as straight, but if that is not legal then
+            # just pick the first legal move. We only pick one the first time. After
+            # that we wait for the human to change it
+            #
+            if not self.waitingTurn:
+                legalMoves = self.waitingWorm.legal_moves_list()
+                straight = 3
+                if straight in legalMoves:
+                    self.waitingTurn = straight
+                else:
+                    self.waitingTurn = legalMoves[0]
+            #
+            # Based on the current direction and the turn, find the new direction.
+            #
+            newDirection = (self.waitingWorm.direction + worm_class.Worm.turnTranslations[self.waitingTurn]) % 6
+            newLocation = self.waitingWorm.location.leave_just_checking(newDirection)
+            #print(newLocation)
 
-    def draw_heads(self, painter):
+            if self.waitingBlinkOn:
+                self.draw_head(painter, worm)
+                color = self.waitingWorm.color
+                segment = worm_class.Segment(self.waitingWorm.location, newLocation, color)
+
+                if (abs(segment.xStart - segment.xEnd) <= 2) and (abs(segment.yStart - segment.yEnd) <= 2):
+                    x1, y1 = self.world_location_to_screen_coord(segment.xStart, segment.yStart)
+                    x2, y2 = self.world_location_to_screen_coord(segment.xEnd, segment.yEnd)
+                    for width, alpha in [(11,4),(9,8),(7,16),(5,32),(3,64),(1,255)]:
+                        color.setAlpha(alpha)
+                        pen = QtGui.QPen(color, width)
+                        painter.setPen(pen)
+                        painter.drawLine(x1,y1,x2,y2)
+
+        else:
+            print('painting not waiting for human')
+            #
+            # Add the next to last (penultimate) segment to the background
+            #
+            backgroundPainter = QtGui.QPainter(self.background)
+            self.draw_penultimate_segment(backgroundPainter)
+            self.rectangle = rectangle
+
+    def keyPressEvent(self, event):
+        if event.key() in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Left, QtCore.Qt.Key_Up, QtCore.Qt.Key_Down]:
+            if event.key() in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up]:
+                turnDirection = +1
+            else:
+                turnDirection = -1
+            self.waitingTurn = (self.waitingTurn + turnDirection) % 6
+            if self.waitingTurn == 0:
+                if event.key() [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up]:
+                    self.waitingTurn = 1
+                else:
+                    self.waitingTurn = 5
+        elif event.key() in [QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return, QtCore.Qt.Key_Space]:
+            view = self.waitingWorm.look()
+            self.waitingWorm.rules[view] = self.waitingTurn
+            self.waitingForHuman = False
+            self.waitingTurn = None
+
+        print('key press in worm_display')
+
+    def draw_head(self, painter, worm):
         """Draw a little head on each worm."""
-        if len(self.world.worms) > 0:
-            numberOfWorms = len(self.world.worms)
-            latestSegments = self.world.segments[-numberOfWorms:]
-            for segment in latestSegments: 
-                x, y = self.world_location_to_screen_coord(segment.xEnd,segment.yEnd)
-                center = QtCore.QPoint(x,y)
-                color = QtGui.QColor(segment.color).lighter()
-                for width, radius, alpha in [(7,12,4),(6,10,8),(5,8,16),(4,6,32),(3,4,64),(2,2,128),(1,1,255)]:
-                    color.setAlpha(alpha)
-                    pen = QtGui.QPen(color, width)
-                    painter.setPen(pen)     
-                    painter.drawEllipse(center,radius,radius)
+        x, y = self.world_location_to_screen_coord(worm.location.x,worm.location.y)
+        center = QtCore.QPoint(x,y)
+        color = QtGui.QColor(worm.color).lighter()
+        for width, radius, alpha in [(7,12,4),(6,10,8),(5,8,16),(4,6,32),(3,4,64),(2,2,128),(1,1,255)]:
+            color.setAlpha(alpha)
+            pen = QtGui.QPen(color, width)
+            painter.setPen(pen)
+            painter.drawEllipse(center,radius,radius)
             
 
-    def draw_ultimate_segment(self, painter):
+    def draw_ultimate_segment(self, painter, worm):
         """Draw the newest segment of each worm in a different color."""
-        numberOfWorms = len(self.world.worms)
-        latestSegments = self.world.segments[-numberOfWorms:]
-        for segment in latestSegments:
+        if worm.segments:
+            segment = worm.segments[-1]
             #
             # I can't draw across the screen correctly yet, so this is the
             # temporary fix to just not draw the literal edge case.
@@ -235,7 +291,7 @@ class WormDisplay(QtWidgets.QWidget):
             if (abs(segment.xStart - segment.xEnd) <= 2) and (abs(segment.yStart - segment.yEnd) <= 2):
                 x1, y1 = self.world_location_to_screen_coord(segment.xStart, segment.yStart)
                 x2, y2 = self.world_location_to_screen_coord(segment.xEnd, segment.yEnd)
-                color = QtGui.QColor(segment.color).lighter()
+                color = QtGui.QColor(worm.color).lighter()
                 color.setAlpha(64)
                 pen = QtGui.QPen(color, 3)
                 painter.setPen(pen)
@@ -341,10 +397,8 @@ class WormDisplay(QtWidgets.QWidget):
         rectangle = self.contentsRect()
         xResolution = rectangle.right()
         yResolution = rectangle.bottom()
-#        xResolution = 750
-#        yResolution = 885
-        xStep = xResolution // self.world.width
-        yStep = yResolution // self.world.height
+        xStep = round(xResolution / self.world.width)
+        yStep = round(yResolution / self.world.height)
         #
         # 1. Make sure the first row & column are not on the edge.
         # 2. To make squares into hexagons, offset every other row.
