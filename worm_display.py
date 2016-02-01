@@ -282,6 +282,7 @@ class WormDisplay(QtWidgets.QWidget):
         print('key press in worm_display')
 
     def wheelEvent(self,event):
+        """should work a lot like keypress..."""
         print('mouse wheel',str(event.angleDelta()))
 
     def draw_head(self, painter, worm):
