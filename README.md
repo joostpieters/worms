@@ -44,7 +44,7 @@ Requires:
  
  [x] Make starting direction random
  
- [ ] Display starting worm
+ [] Display starting worm
  
  [x] Background graphic
  
@@ -82,7 +82,7 @@ Requires:
  
  [x] Set the number of worms
  
- [ ] Pick the color of a worm
+ [x] Pick the color of a worm
  
  [x] Better set of computer worm colors
  

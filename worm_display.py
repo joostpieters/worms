@@ -24,7 +24,7 @@ class WormDisplay(QtWidgets.QWidget):
         # Setting random seed just for testing.
         #
         self.timer.stop()
-        random.seed(3)
+#        random.seed(3)
         self.time = clock()
         self.worldWidth = h
         self.worldHeight = w
@@ -248,7 +248,7 @@ class WormDisplay(QtWidgets.QWidget):
             self.draw_penultimate_segment(backgroundPainter)
             self.rectangle = rectangle
 
-    def keyPressEvent(self, event):
+    def keyPressEvent2(self, event):
         print('keypress Enter')
         if event.key() in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Left, QtCore.Qt.Key_Up, QtCore.Qt.Key_Down]:
             print('into if')
@@ -281,9 +281,52 @@ class WormDisplay(QtWidgets.QWidget):
             self.waitingTurn = None
         print('key press in worm_display')
 
-    def wheelEvent(self,event):
+    def keyPressEvent(self, event):
+        if self.waitingForHuman == True:
+            if event.key() in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up]:
+                print('up')
+                self.human_control('up')
+            elif event.key() in [QtCore.Qt.Key_Left, QtCore.Qt.Key_Down]:
+                print('down')
+                self.human_control('down')
+            elif event.key() in [QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return, QtCore.Qt.Key_Space]:
+                print('select')
+                self.human_control('select')
+
+    def wheelEvent(self, event):
         """should work a lot like keypress..."""
-        print('mouse wheel',str(event.angleDelta()))
+        if self.waitingForHuman == True:
+            if event.angleDelta().y() > 0:
+                print('up')
+                self.human_control('up')
+            else:
+                print('down')
+                self.human_control('down')
+
+    def human_control(self, event):
+        if event in ['up','down']:
+            if event == 'up':
+                turnDirection = +1
+            else:
+                turnDirection = -1
+            self.waitingTurn = (self.waitingTurn + turnDirection) % 6
+            if self.waitingTurn == 0:
+                if event == 'up':
+                    self.waitingTurn = 1
+                else:
+                    self.waitingTurn = 5
+            while self.waitingTurn not in self.waitingWorm.legal_moves_list():
+                self.waitingTurn = (self.waitingTurn + turnDirection) % 6
+                if self.waitingTurn == 0:
+                    if event =='up':
+                        self.waitingTurn = 1
+                    else:
+                        self.waitingTurn = 5
+        elif event == 'select':
+            view = self.waitingWorm.look()
+            self.waitingWorm.rules[view] = self.waitingTurn
+            self.waitingForHuman = False
+            self.waitingTurn = None
 
     def draw_head(self, painter, worm):
         """Draw a little head on each worm."""
