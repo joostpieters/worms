@@ -279,8 +279,10 @@ class WormDisplay(QtWidgets.QWidget):
             self.waitingWorm.rules[view] = self.waitingTurn
             self.waitingForHuman = False
             self.waitingTurn = None
-
         print('key press in worm_display')
+
+    def wheelEvent(self,event):
+        print('mouse wheel',str(event.angleDelta()))
 
     def draw_head(self, painter, worm):
         """Draw a little head on each worm."""
